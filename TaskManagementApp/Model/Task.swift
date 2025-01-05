@@ -17,12 +17,12 @@ struct Task: Identifiable {
 }
 
 var sampleTasks: [Task] = [
-    .init(taskTitle: "Record Video", creationDate: .updateHour(-5),  isCompleted: true, tint: Color.red),
-    .init(taskTitle: "Redesign Website", creationDate: .updateHour(-3),  isCompleted: false, tint: Color.green),
-    .init(taskTitle: "Go for a walk", creationDate: .updateHour(-4),  isCompleted: true, tint: AppColor.darkBlue.color),
-    .init(taskTitle: "Edit Video", creationDate: .updateHour(0),  isCompleted: false, tint: Color.yellow),
-    .init(taskTitle: "Publish Video", creationDate: .updateHour(2),  isCompleted: true, tint: Color.pink),
-    .init(taskTitle: "Tweet about new Video!", creationDate: .updateHour(1),  isCompleted: false, tint: Color.pink)
+    .init(taskTitle: "Record Video", creationDate: .updateHour(-5),  isCompleted: true, tint: Color.red.opacity(0.5)),
+    .init(taskTitle: "Redesign Website", creationDate: .updateHour(-3),  isCompleted: false, tint: Color.green.opacity(0.5)),
+    .init(taskTitle: "Go for a walk", creationDate: .updateHour(-4),  isCompleted: true, tint: AppColor.darkBlue.color.opacity(0.5)),
+    .init(taskTitle: "Edit Video", creationDate: .updateHour(0),  isCompleted: false, tint: Color.yellow.opacity(0.5)),
+    .init(taskTitle: "Publish Video", creationDate: .updateHour(2),  isCompleted: true, tint: Color.pink.opacity(0.5)),
+    .init(taskTitle: "Tweet about new Video!", creationDate: .updateHour(1),  isCompleted: false, tint: Color.pink.opacity(0.5))
 ]
 
 extension Date {

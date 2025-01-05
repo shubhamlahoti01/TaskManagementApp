@@ -13,35 +13,23 @@ struct HomeView: View {
     @State private var weekSlider: [[Date.WeekDay]] = []
     @State private var currentWeekIndex: Int = 1
     @State private var createWeek: Bool = false
+    @State private var showDatePicker: Bool = false
     
     /// Animation Namespace
     @Namespace private var animation
     
-    @State private var showDatePicker: Bool = false
+    @State private var tasks: [Task] = sampleTasks.sorted(by: { $1.creationDate > $0.creationDate })
+    @State var createNewTask: Bool = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 15) {
-                Button {
-                    showDatePicker.toggle()
-                } label: {
-                    Image(systemName: "calendar")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 30, height: 30)
-                        .foregroundColor(.black)
-                }
-                Button("Today") {
-                    resetToToday()
-                }
-                .font(.callout)
-                .foregroundColor(.blue)
-            }
+            topView()
             headerView()
             
             ScrollView(.vertical) {
                 VStack {
-                    
+                    /// Tasks View
+                    tasksView()
                 }
                 .hSpacing(.center)
                 .vSpacing(.center)
@@ -49,37 +37,92 @@ struct HomeView: View {
             .scrollIndicators(.hidden)
         }
         .vSpacing(.top)
+        .overlay(alignment: .bottomTrailing){
+            Button {
+                createNewTask = true
+            } label: {
+                Image(systemName: "plus")
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.white)
+                    .frame(width: 55, height: 55)
+                    .background(AppColor.darkBlue.color.shadow(.drop(color: .black.opacity(0.25), radius: 5, x: 10, y: 10)), in: .circle)
+            }
+            .padding(15)
+        }
         .onAppear {
-            updateWeeks(for: Date.init())
+            currentDate = Date()
+            updateWeeks(for: currentDate)
+        }
+        .sheet(isPresented: $createNewTask, content: {
+            NewTaskView()
+                .presentationDetents([.height(300)])
+                .interactiveDismissDisabled()
+                .presentationCornerRadius(30)
+                .presentationBackground(AppColor.cream.color)
+        })
+    }
+    @ViewBuilder
+    func tasksView() -> some View {
+        VStack(alignment: .leading, spacing: 35) {
+            ForEach($tasks) { $task in
+                TaskRowView(task: $task)
+                    .background(alignment: .leading) {
+                        if tasks.last?.id != task.id {
+                            Rectangle()
+                                .frame(width: 1)
+                                .offset(x: 8)
+                                .padding(.bottom, -35)
+                        }
+                    }
+            }
+        }
+        .padding([.vertical, .leading], 15)
+        .padding(.top, 15)
+    }
+    @ViewBuilder
+    func datePicker() -> some View {
+        VStack {
+            DatePicker(
+                "Select Date",
+                selection: $currentDate,
+                displayedComponents: .date
+            )
+            .datePickerStyle(.graphical)
+            .padding()
+            
+            Button("Set Week") {
+                updateWeeks(for: currentDate)
+                showDatePicker = false
+            }
+            .padding()
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .clipShape(Capsule())
+        }
+    }
+    @ViewBuilder
+    func topView() -> some View {
+        HStack(spacing: 15) {
+            Button {
+                showDatePicker = true
+            } label: {
+                Image(systemName: "calendar")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 30, height: 30)
+                    .foregroundColor(.black)
+            }
+            Button("Today") {
+                resetToToday()
+            }
+            .font(.callout)
+            .foregroundColor(.blue)
         }
         .sheet(isPresented: $showDatePicker) {
-            VStack {
-                DatePicker(
-                    "Select Date",
-                    selection: $currentDate,
-                    displayedComponents: .date
-                )
-                .datePickerStyle(.graphical)
-                .padding()
-                
-                Button("Set Week") {
-                    updateWeeks(for: currentDate)
-                    showDatePicker = false
-                }
-                .padding()
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .clipShape(Capsule())
-            }
+            datePicker()
             .presentationDetents([.medium])
         }
     }
-    
-    func resetToToday() {
-        currentDate = Date()
-        updateWeeks(for: currentDate)
-    }
-    
     @ViewBuilder
     func headerView() -> some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -133,7 +176,6 @@ struct HomeView: View {
             }
         }
     }
-    
     @ViewBuilder
     func weekView(week: [Date.WeekDay]) -> some View {
         HStack(spacing: 0) {
@@ -214,7 +256,10 @@ struct HomeView: View {
             }
         }
     }
-    
+    func resetToToday() {
+        currentDate = Date()
+        updateWeeks(for: currentDate)
+    }
     func updateWeeks(for date: Date) {
         weekSlider.removeAll()
         let currentWeek = date.fetchWeek(date)
