@@ -21,22 +21,22 @@ struct HomeView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-//            HStack(spacing: 15) {
-//                Button {
-//                    showDatePicker.toggle()
-//                } label: {
-//                    Image(systemName: "calendar")
-//                        .resizable()
-//                        .scaledToFit()
-//                        .frame(width: 30, height: 30)
-//                        .foregroundColor(.black)
-//                }
-//                Button("Today") {
-//                    resetToToday()
-//                }
-//                .font(.callout)
-//                .foregroundColor(.blue)
-//            }
+            HStack(spacing: 15) {
+                Button {
+                    showDatePicker.toggle()
+                } label: {
+                    Image(systemName: "calendar")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 30, height: 30)
+                        .foregroundColor(.black)
+                }
+                Button("Today") {
+                    resetToToday()
+                }
+                .font(.callout)
+                .foregroundColor(.blue)
+            }
             headerView()
             
             ScrollView(.vertical) {
@@ -50,36 +50,35 @@ struct HomeView: View {
         }
         .vSpacing(.top)
         .onAppear {
-            handleOnAppear()
+            updateWeeks(for: Date.init())
         }
-//        .sheet(isPresented: $showDatePicker) {
-//            VStack {
-//                DatePicker(
-//                    "Select Date",
-//                    selection: $currentDate,
-//                    displayedComponents: .date
-//                )
-//                .datePickerStyle(.graphical)
-//                .padding()
-//                
-//                Button("Set Week") {
-//                    updateWeeks(for: currentDate)
-//                    showDatePicker = false
-//                }
-//                .padding()
-//                .background(Color.blue)
-//                .foregroundColor(.white)
-//                .clipShape(Capsule())
-//            }
-//            .presentationDetents([.medium])
-//        }
+        .sheet(isPresented: $showDatePicker) {
+            VStack {
+                DatePicker(
+                    "Select Date",
+                    selection: $currentDate,
+                    displayedComponents: .date
+                )
+                .datePickerStyle(.graphical)
+                .padding()
+                
+                Button("Set Week") {
+                    updateWeeks(for: currentDate)
+                    showDatePicker = false
+                }
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .clipShape(Capsule())
+            }
+            .presentationDetents([.medium])
+        }
     }
     
-//    func resetToToday() {
-//        currentDate = Date()
-//        handleOnAppear()
-//        currentWeekIndex = 1
-//    }
+    func resetToToday() {
+        currentDate = Date()
+        updateWeeks(for: currentDate)
+    }
     
     @ViewBuilder
     func headerView() -> some View {
@@ -150,7 +149,7 @@ struct HomeView: View {
                         .font(.callout)
                         .fontWeight(.bold)
                         .textScale(.secondary)
-                        .foregroundColor(isSameDate(day.date, currentDate) ? .white: .gray)
+                        .foregroundColor(isSameDate(day.date, currentDate) ? .white: day.date.format("dd") == "01" ? .red : .gray)
                         .frame(width: 35, height: 35)
                         .background {
                             if isSameDate(day.date, currentDate) {
@@ -216,20 +215,20 @@ struct HomeView: View {
         }
     }
     
-    func handleOnAppear() {
-        if weekSlider.isEmpty {
-            let currentWeek = Date().fetchWeek()
-            
-            if let firstDate = currentWeek.first?.date {
-                weekSlider.append(firstDate.createPrevWeek())
-            }
-            
-            weekSlider.append(currentWeek)
-            
-            if let lastDate = currentWeek.last?.date {
-                weekSlider.append(lastDate.createNextWeek())
-            }
+    func updateWeeks(for date: Date) {
+        weekSlider.removeAll()
+        let currentWeek = date.fetchWeek(date)
+        
+        if let firstDate = currentWeek.first?.date {
+            weekSlider.append(firstDate.createPrevWeek())
         }
+        
+        weekSlider.append(currentWeek)
+        
+        if let lastDate = currentWeek.last?.date {
+            weekSlider.append(lastDate.createNextWeek())
+        }
+        currentWeekIndex = 1
     }
 }
 
