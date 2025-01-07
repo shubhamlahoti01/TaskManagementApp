@@ -18,7 +18,6 @@ struct HomeView: View {
     /// Animation Namespace
     @Namespace private var animation
     
-    @State private var tasks: [Task] = sampleTasks.sorted(by: { $1.creationDate > $0.creationDate })
     @State var createNewTask: Bool = false
     
     var body: some View {
@@ -29,7 +28,7 @@ struct HomeView: View {
             ScrollView(.vertical) {
                 VStack {
                     /// Tasks View
-                    tasksView()
+                    TasksView(currentDate: $currentDate)
                 }
                 .hSpacing(.center)
                 .vSpacing(.center)
@@ -60,24 +59,6 @@ struct HomeView: View {
                 .presentationCornerRadius(30)
                 .presentationBackground(AppColor.cream.color)
         })
-    }
-    @ViewBuilder
-    func tasksView() -> some View {
-        VStack(alignment: .leading, spacing: 35) {
-            ForEach($tasks) { $task in
-                TaskRowView(task: $task)
-                    .background(alignment: .leading) {
-                        if tasks.last?.id != task.id {
-                            Rectangle()
-                                .frame(width: 1)
-                                .offset(x: 8)
-                                .padding(.bottom, -35)
-                        }
-                    }
-            }
-        }
-        .padding([.vertical, .leading], 15)
-        .padding(.top, 15)
     }
     @ViewBuilder
     func datePicker() -> some View {
